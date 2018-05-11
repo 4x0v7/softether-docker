@@ -2,18 +2,19 @@ FROM alpine as builder
 
 LABEL version="0.1"
 
-RUN mkdir /usr/local/src && apk update && apk add binutils \
+RUN apk --no-cache add \
+        binutils \
         build-base \
-        readline-dev \
-        openssl-dev \
+        git \
         ncurses-dev \
-        git &&\
-        apk add gnu-libiconv --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ --allow-untrusted
-
+        openssl-dev \
+        readline-dev \
+    && apk add gnu-libiconv --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ --allow-untrusted \
+    && mkdir /usr/local/src
 ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so
 WORKDIR /usr/local/src
-RUN git clone -b 'v4.25-9656-rtm' https://github.com/SoftEtherVPN/SoftEtherVPN_Stable.git
-
+RUN git clone https://github.com/SoftEtherVPN/SoftEtherVPN_Stable.git \
+    && git checkout tags/v4.25-9656-rtm
 WORKDIR /usr/local/src/SoftEtherVPN_Stable
 
 RUN ./configure && make
